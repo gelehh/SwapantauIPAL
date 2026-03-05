@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin Swapantau Air Limbah</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  
+  <style>
+    :root {
+      --primary: #0f172a;       
+      --secondary: #475569;     
+      --accent: #10b981;        
+      --bg-color: #f4f7f6;      
+      --card-bg: #ffffff;
+      --border-color: #e2e8f0;
+    }
+
+    body {
+      background: var(--bg-color);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--secondary);
+    }
+
+    /* Navbar Premium Glassmorphism */
+    .navbar-glass {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 1rem 0;
+    }
+    .navbar-brand {
+      color: #ffffff !important;
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-icon {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: white;
+    }
+
+    /* Header Section */
+    .page-header {
+      margin-bottom: 2rem;
+    }
+    .page-title {
+      font-weight: 800;
+      color: var(--primary);
+      font-size: 1.8rem;
+      margin-bottom: 0.3rem;
+    }
+    .page-subtitle {
+      color: var(--secondary);
+      font-size: 0.95rem;
+      font-weight: 400;
+    }
+
+    /* Custom Cards */
+    .card-custom {
+      background: var(--card-bg);
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+      padding: 24px;
+      margin-bottom: 24px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-custom:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    .chart-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .icon-wrapper {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    .icon-ph { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .icon-suhu { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .icon-tds { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    
+    .chart-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--primary);
+      margin: 0;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 250px;
+      width: 100%;
+      margin-top: auto;
+    }
+
+    /* Buttons */
+    .btn-action {
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.3px;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+    }
+    .btn-excel {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+    }
+    .btn-excel:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+      color: white;
+    }
+    .btn-pdf {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+    }
+    .btn-pdf:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+      color: white;
+    }
+    .btn-download-chart {
+      background: var(--bg-color);
+      color: var(--secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .btn-download-chart:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Form Controls */
+    .filter-wrapper {
+      background: var(--card-bg);
+      padding: 16px 24px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 40px -10px rgba(0,0,0,0.03);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .form-select {
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      padding: 10px 36px 10px 16px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--primary);
+      background-color: #f8fafc;
+      box-shadow: none;
+      min-width: 140px;
+    }
+    .form-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    /* Modern Table */
+    .table-container {
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+      border: 1px solid var(--border-color);
+      padding: 0;
+      overflow: hidden;
+    }
+    .table-header-custom {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .table-responsive {
+      max-height: 550px;
+      overflow: auto;
+    }
+    .table {
+      margin-bottom: 0;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    .table thead th {
+      background-color: #f8fafc;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-color) !important;
+      border-top: none;
+      padding: 16px;
+      white-space: nowrap;
+      text-align: center;
+      vertical-align: middle;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    th.bg-primary {
+      background-color: var(--primary) !important;
+      color: white !important;
+    }
+    .table tbody td {
+      padding: 16px;
+      vertical-align: middle;
+      white-space: nowrap;
+      text-align: center;
+      border-bottom: 1px solid #f1f5f9;
+      font-weight: 500;
+      color: var(--secondary);
+    }
+    .table tbody tr:hover td {
+      background-color: #f8fafc;
+    }
+    
+    .badge {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      letter-spacing: 0.3px;
+    }
+    .badge.bg-success {
+      background-color: rgba(16, 185, 129, 0.1) !important;
+      color: #059669 !important;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .badge.bg-danger {
+      background-color: rgba(239, 68, 68, 0.1) !important;
+      color: #dc2626 !important;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* Loading Spinner */
+    .loader-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+    }
+    .spinner-border {
+      color: var(--accent);
+      border-width: 0.25em;
+    }
+
+    /* --- LISENSI, UPGRADE & SETTINGS --- */
+    .license-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 9999;
+      display: none; 
+      align-items: center;
+      justify-content: center;
+    }
+    .license-box {
+      background: var(--card-bg);
+      padding: 40px;
+      border-radius: 24px;
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+    }
+    .license-icon {
+      font-size: 3.5rem;
+      color: #ef4444;
+      margin-bottom: 20px;
+      background: rgba(239, 68, 68, 0.1);
+      width: 80px;
+      height: 80px;
+      line-height: 80px;
+      border-radius: 50%;
+    }
+    .license-input {
+      width: 100%;
+      padding: 14px 20px;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      margin: 20px 0;
+      font-weight: 700;
+      text-align: center;
+      font-size: 1.1rem;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+    .license-input:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+    .upgrade-card {
+      border: 2px solid var(--accent);
+      border-radius: 16px;
+      padding: 24px;
+      margin: 20px 0;
+      background: rgba(16, 185, 129, 0.05);
+      text-align: left;
+    }
+    .dana-box {
+      background: #118ee0; 
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin: 15px 0;
+    }
+    .btn-close-modal {
+      position: absolute;
+      top: 20px;
+      right: 25px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--secondary);
+      transition: color 0.2s;
+    }
+    .btn-close-modal:hover {
+      color: var(--primary);
+    }
+
+    /* --- UI LOGIN SIGN-UP DATABASE SPREADSHEET --- */
+    #authOverlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--bg-color);
+      z-index: 100000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-container {
+      background-color: #fff;
+      border-radius: 16px;
+      box-shadow: 0 14px 28px rgba(0,0,0,0.15), 0 10px 10px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+      width: 850px;
+      max-width: 95%;
+      min-height: 500px;
+      display: flex;
+      flex-direction: row;
+    }
+    .auth-left {
+      background-color: #10b981;
+      color: #ffffff;
+      width: 45%;
+      padding: 50px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .auth-left h1 {
+      font-weight: 800;
+      margin-bottom: 10px;
+      font-size: 2.2rem;
+      line-height: 1.2;
+    }
+    .auth-left p {
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+      opacity: 0.9;
+    }
+    .auth-input-green {
+      background-color: #ffffff;
+      border: none;
+      padding: 14px 15px;
+      margin: 8px 0;
+      width: 100%;
+      border-radius: 8px;
+      font-family: inherit;
+      color: #333;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    .auth-input-green:focus {
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+    }
+    .btn-outline-white {
+      border-radius: 25px;
+      border: 2px solid #FFFFFF;
+      background-color: transparent;
+      color: #FFFFFF;
+      font-size: 0.85rem;
+      font-weight: bold;
+      padding: 12px 50px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .btn-outline-white:hover {
+      background-color: rgba(255,255,255,0.15);
+      color: white;
+    }
+    .error-msg-white {
+      color: #fee2e2;
+      font-size: 0.85rem;
+      margin-top: 5px;
+      font-weight: 600;
+      display: none;
+    }
+    .link-forgot {
+      font-size: 0.85rem;
+      color: #ffffff;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 10px;
+      display: inline-block;
+      opacity: 0.9;
+    }
+    .link-forgot:hover {
+      opacity: 1;
+    }
+    #loginSection {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      align-items: center;
+    }
+    #forgotSection {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      align-items: center;
+    }
+
+    .password-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+    
+    .auth-right {
+      width: 55%;
+      padding: 50px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .auth-right h1 {
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 10px;
+      font-size: 2.2rem;
+    }
+    .auth-right span {
+      font-size: 0.95rem;
+      color: var(--secondary);
+      margin-bottom: 25px;
+    }
+    .auth-input {
+      background-color: #f1f5f9;
+      border: none;
+      padding: 14px 15px;
+      margin: 8px 0;
+      width: 100%;
+      border-radius: 8px;
+      font-family: inherit;
+      color: var(--primary);
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    .auth-input:focus {
+      outline: none;
+      border: 1px solid #10b981;
+      background-color: #fff;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+    .btn-solid-green {
+      border-radius: 25px;
+      border: none;
+      background-color: #10b981;
+      color: #FFFFFF;
+      font-size: 0.85rem;
+      font-weight: bold;
+      padding: 12px 50px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .btn-solid-green:hover {
+      background-color: #059669;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+    .error-msg {
+      font-size: 0.85rem;
+      margin-top: 10px;
+      font-weight: 600;
+      display: none;
+    }
+
+    /* COPYRIGHT STYLE */
+    .copyright {
+      text-align: center;
+      padding: 20px 0;
+      margin-top: 20px;
+      color: #94a3b8;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+    }
+    
+    @media (max-width: 768px) {
+      .auth-container { flex-direction: column; }
+      .auth-left, .auth-right { width: 100%; padding: 40px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="authOverlay">
+    <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+      <div class="auth-container">
+        
+        <div class="auth-left">
+          
+          <div id="loginSection">
+            <h1>Selamat Datang<br>Kembali!</h1>
+            <p>Silakan masuk menggunakan akun Anda</p>
+            <input type="text" id="loginUsername" class="auth-input-green" placeholder="Username">
+            
+            <div class="password-wrapper">
+              <input type="password" id="loginPassword" class="auth-input-green" placeholder="Password">
+              <i class="fas fa-eye toggle-password" onclick="togglePassword('loginPassword', this)"></i>
+            </div>
+
+            <div id="loginError" class="error-msg-white">Username atau Password salah!</div>
+            <span class="link-forgot" onclick="switchForgotUI(true)">Lupa Password?</span>
+            
+            <button class="btn-outline-white mt-4" onclick="prosesLogin()" id="btnLogin">LOGIN</button>
+          </div>
+
+          <div id="forgotSection">
+            <h1>Lupa<br>Password?</h1>
+            <p>Masukkan email terdaftar, kami akan membuatkan password baru untuk Anda.</p>
+            <input type="email" id="forgotEmail" class="auth-input-green" placeholder="Alamat Email Terdaftar">
+            
+            <div id="forgotMsg" class="error-msg-white"></div>
+            
+            <button class="btn-outline-white mt-4" onclick="prosesForgotPassword()" id="btnForgot">KIRIM EMAIL</button>
+            <span class="link-forgot mt-3" onclick="switchForgotUI(false)"><i class="fas fa-arrow-left me-1"></i> Kembali ke Login</span>
+          </div>
+
+        </div>
+
+        <div class="auth-right">
+          <h1>Buat Akun</h1>
+          <span>Daftarkan diri Anda untuk akses sistem</span>
+          <input type="text" id="regNama" class="auth-input" placeholder="Nama Lengkap">
+          <input type="email" id="regEmail" class="auth-input" placeholder="Alamat Email (Untuk Reset Password)">
+          <input type="text" id="regUsername" class="auth-input" placeholder="Buat Username">
+          
+          <div class="password-wrapper">
+            <input type="password" id="regPassword" class="auth-input" placeholder="Buat Password">
+            <i class="fas fa-eye toggle-password" onclick="togglePassword('regPassword', this)"></i>
+          </div>
+
+          <div id="regMsg" class="error-msg"></div>
+          <button class="btn-solid-green mt-4" onclick="prosesRegister()" id="btnRegister">SIGN UP</button>
+        </div>
+        
+      </div>
+
+      <div class="copyright mt-4 text-center" style="color: #94a3b8; font-weight: 600; font-size: 0.95rem; letter-spacing: 0.5px;">
+        &copy; Copyright by Bg
+      </div>
+    </div>
+  </div>
+
+  <div class="license-overlay" id="licenseModal">
+    <div class="license-box">
+      <i class="fas fa-lock license-icon"></i>
+      <h3 class="fw-bold mb-3" style="color: var(--primary);">Akses Terkunci</h3>
+      <p class="text-secondary mb-4" style="line-height: 1.6;">Akses Anda ke sistem ini telah dikunci. Silakan masukkan <strong>Token Akses</strong> atau klik Upgrade untuk membeli Token Akses Unlimited.</p>
+      <input type="text" id="tokenInput" class="license-input" placeholder="Masukkan Token Aktivasi">
+      <button class="btn-action btn-excel w-100 justify-content-center py-3 mb-2" onclick="verifyToken()" id="btnVerify">
+        <i class="fas fa-key"></i> Aktivasi Sekarang
+      </button>
+      <button class="btn-action btn-download-chart w-100 justify-content-center py-3" onclick="openUpgradeModal()" style="height: auto;">
+        <i class="fas fa-shopping-cart"></i> Beli Token / Upgrade
+      </button>
+    </div>
+  </div>
+
+  <div class="license-overlay" id="upgradeModal" style="z-index: 10000;">
+    <div class="license-box">
+      <button class="btn-close-modal" onclick="closeUpgradeModal()"><i class="fas fa-times"></i></button>
+      <i class="fas fa-rocket license-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.1);"></i>
+      <h3 class="fw-bold mb-2" style="color: var(--primary);">Upgrade Akun</h3>
+      <p class="text-secondary">Pilih paket akses Anda di bawah ini:</p>
+      
+      <div class="upgrade-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="fw-bold mb-0 text-dark">Akses Unlimited</h5>
+          <span class="badge bg-success">Selamanya</span>
+        </div>
+        <h4 class="fw-bold mb-3 text-success">Rp 200.000</h4>
+        <ul class="text-secondary small ps-3 mb-4">
+          <li>Akses sistem selamanya (tanpa batas waktu)</li>
+          <li>Gratis update fitur</li>
+          <li>Support langsung dari developer</li>
+        </ul>
+        <button class="btn-action btn-excel w-100 justify-content-center" onclick="openPaymentModal()">
+          Pilih Paket Ini
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="license-overlay" id="paymentModal" style="z-index: 10001;">
+    <div class="license-box">
+      <button class="btn-close-modal" onclick="closePaymentModal()"><i class="fas fa-times"></i></button>
+      <h3 class="fw-bold mb-2" style="color: var(--primary);">Kuitansi Pembayaran</h3>
+      <p class="text-secondary mb-4">Silakan transfer biaya Upgrade sebesar <strong>Rp 200.000</strong> ke nomor e-Wallet DANA berikut:</p>
+      
+      <div class="dana-box">
+        <div class="small mb-1" style="font-weight: 400; font-size: 0.9rem;">E-Wallet DANA</div>
+        0813-1412-9635
+      </div>
+      
+      <p class="small text-muted mb-2"><i class="fas fa-info-circle"></i> Setelah transfer, kirim bukti via WhatsApp. Jika sudah mendapat Token, masukkan di bawah ini:</p>
+      
+      <input type="text" id="tokenInputPayment" class="license-input mb-3" placeholder="Masukkan Token Aktivasi" style="margin-top: 5px;">
+      
+      <button class="btn-action w-100 justify-content-center py-3 mb-3" onclick="verifyTokenFromPayment()" id="btnVerifyPayment" style="background: #0f172a; color: white;">
+        <i class="fas fa-key"></i> Aktivasi Sekarang
+      </button>
+      
+      <button class="btn-action btn-excel w-100 justify-content-center py-3" onclick="sendProofWhatsApp()">
+        <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> Kirim Bukti Transfer
+      </button>
+    </div>
+  </div>
+
+  <div class="license-overlay" id="settingsModal" style="z-index: 10002;">
+    <div class="license-box">
+      <button class="btn-close-modal" onclick="closeSettingsModal()"><i class="fas fa-times"></i></button>
+      <i class="fas fa-user-cog license-icon" style="color: #3b82f6; background: rgba(59, 130, 246, 0.1);"></i>
+      <h3 class="fw-bold mb-3" style="color: var(--primary);">Pengaturan Akun</h3>
+      <p class="text-secondary mb-4">Perbarui informasi profil Anda di sini.</p>
+      
+      <div class="text-start">
+          <input type="text" id="setNama" class="auth-input mb-3" placeholder="Ubah Nama Lengkap">
+          <input type="email" id="setEmail" class="auth-input mb-3" placeholder="Ubah Alamat Email">
+          <input type="text" id="setUsername" class="auth-input mb-3" placeholder="Ubah Username">
+          
+          <div class="password-wrapper mb-3">
+              <input type="password" id="setPassword" class="auth-input m-0" placeholder="Ubah Password Baru">
+              <i class="fas fa-eye toggle-password" onclick="togglePassword('setPassword', this)"></i>
+          </div>
+      </div>
+
+      <button class="btn-action btn-excel w-100 justify-content-center py-3 mt-3" onclick="simpanPengaturan()">
+        <i class="fas fa-save"></i> Simpan Perubahan
+      </button>
+    </div>
+  </div>
+
+  <div class="license-overlay" id="notifModal" style="z-index: 10003; display: none;">
+    <div class="license-box">
+      <i id="notifIcon" class="fas fa-check-circle license-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.1);"></i>
+      <h3 class="fw-bold mb-3" id="notifTitle" style="color: var(--primary);">Berhasil!</h3>
+      <p class="text-secondary mb-4" id="notifMessage">Profil Anda berhasil diperbarui.</p>
+      <button class="btn-action btn-excel w-100 justify-content-center py-3" onclick="closeNotifModal()">
+        Tutup
+      </button>
+    </div>
+  </div>
+
+  <nav class="navbar navbar-expand-lg sticky-top navbar-glass mb-4">
+    <div class="container-fluid px-4 px-xl-5">
+      <a class="navbar-brand" href="#">
+        <div class="brand-icon">
+          <i class="fas fa-leaf"></i>
+        </div>
+        Swapantau Limbah Cair
+      </a>
+      
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <div id="navStatusBadge" class="d-flex align-items-center gap-2">
+          </div>
+
+        <div class="dropdown" id="profileMenu" style="display: none;">
+          <button class="btn rounded-circle p-2 border-0 shadow-sm" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--accent); color: #ffffff;">
+            <i class="fas fa-user"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="dropdownMenuButton" style="border-radius: 12px; margin-top: 10px;">
+            <li><h6 class="dropdown-header">Menu Akun</h6></li>
+            <li><a class="dropdown-item py-2" href="#" onclick="openSettingsModal()"><i class="fas fa-cog me-2 text-secondary"></i> Pengaturan</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item py-2 text-danger" href="#" onclick="prosesLogout()"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+          </ul>
+        </div>
+      </div>
+      
+    </div>
+  </nav>
+
+  <div class="container-fluid px-4 px-xl-5 mb-5">
+    
+    <div class="row align-items-center mb-4">
+      <div class="col-lg-5 col-md-12 mb-3 mb-lg-0">
+        <div class="page-header m-0">
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle mb-0">Pantau performa harian IPAL dan unduh laporan otomatis.</p>
+          
+          <div id="greetingContainer" class="mt-3 text-secondary" style="display: none; font-size: 0.9rem; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <span class="badge bg-white text-dark border shadow-sm px-3 py-2"><i class="fas fa-hand-sparkles text-warning me-1"></i> <span id="greetingMessage"></span></span>
+            <span class="badge bg-white text-dark border shadow-sm px-3 py-2"><i class="fas fa-clock text-primary me-1"></i> <span id="clockMessage"></span></span>
+            <span class="badge bg-white text-dark border shadow-sm px-3 py-2"><i class="fas fa-spinner fa-spin text-info me-1" id="weatherIcon"></i> <span id="weatherMessage">Memuat cuaca...</span></span>
+          </div>
+
+        </div>
+      </div>
+      
+      <div class="col-lg-7 col-md-12 mt-3 mt-lg-0">
+        <div class="filter-wrapper justify-content-lg-end">
+           <select id="monthFilter" class="form-select">
+             <option value="all">Semua Bulan</option>
+             <option value="Januari">Januari</option>
+             <option value="Februari">Februari</option>
+             <option value="Maret">Maret</option>
+             <option value="April">April</option>
+             <option value="Mei">Mei</option>
+             <option value="Juni">Juni</option>
+             <option value="Juli">Juli</option>
+             <option value="Agustus">Agustus</option>
+             <option value="September">September</option>
+             <option value="Oktober">Oktober</option>
+             <option value="November">November</option>
+             <option value="Desember">Desember</option>
+           </select>
+           
+           <select id="yearFilter" class="form-select">
+             <option value="all">Semua Tahun</option>
+             <option value="2026">2026</option>
+             <option value="2027">2027</option>
+             <option value="2028">2028</option>
+             <option value="2029">2029</option>
+             <option value="2030">2030</option>
+           </select>
+
+           <div class="d-flex gap-2 ms-lg-2">
+             <button class="btn-action btn-excel text-nowrap" onclick="downloadExcel()">
+              <i class="fas fa-file-excel"></i> Excel
+            </button>
+            <button class="btn-action btn-pdf text-nowrap" onclick="downloadPDF()">
+              <i class="fas fa-file-pdf"></i> PDF
+            </button>
+           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="loader-container" id="loading">
+      <div class="spinner-border mb-4" role="status" style="width: 3.5rem; height: 3.5rem;">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <h5 class="text-secondary fw-bold">Loading....</h5>
+      <p class="text-muted small">Tunggu sabar ya....</p>
+    </div>
+
+    <div id="mainContentWrapper" class="d-none">
+      
+      <div class="row g-4 mb-4">
+        <div class="col-lg-4 col-md-12">
+          <div class="card-custom">
+            <div class="chart-header">
+              <div class="chart-title-group">
+                <div class="icon-wrapper icon-ph"><i class="fas fa-tint"></i></div>
+                <div>
+                  <h5 class="chart-title">Trend Evaluasi pH</h5>
+                </div>
+              </div>
+              <button class="btn-download-chart" onclick="downloadChart('chartPH', 'Grafik_pH')" title="Download PNG"><i class="fas fa-download"></i></button>
+            </div>
+            <div id="statusPH" class="mb-3"></div>
+            <div class="chart-wrapper">
+                <canvas id="chartPH"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-12">
+          <div class="card-custom">
+            <div class="chart-header">
+              <div class="chart-title-group">
+                <div class="icon-wrapper icon-suhu"><i class="fas fa-thermometer-half"></i></div>
+                <div>
+                  <h5 class="chart-title">Trend Evaluasi Suhu</h5>
+                </div>
+              </div>
+              <button class="btn-download-chart" onclick="downloadChart('chartSuhu', 'Grafik_Suhu')" title="Download PNG"><i class="fas fa-download"></i></button>
+            </div>
+            <div id="statusSuhu" class="mb-3"></div>
+            <div class="chart-wrapper">
+                <canvas id="chartSuhu"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-12">
+          <div class="card-custom">
+            <div class="chart-header">
+              <div class="chart-title-group">
+                <div class="icon-wrapper icon-tds"><i class="fas fa-water"></i></div>
+                <div>
+                  <h5 class="chart-title">Trend Evaluasi TDS</h5>
+                </div>
+              </div>
+              <button class="btn-download-chart" onclick="downloadChart('chartTDS', 'Grafik_TDS')" title="Download PNG"><i class="fas fa-download"></i></button>
+            </div>
+            <div id="statusTDS" class="mb-3"></div>
+            <div class="chart-wrapper">
+                <canvas id="chartTDS"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header-custom">
+           <div class="icon-wrapper" style="background: rgba(15, 23, 42, 0.05); color: var(--primary);">
+             <i class="fas fa-table"></i>
+           </div>
+           <h5 class="chart-title">Rekapitulasi Debit Air Limbah Harian</h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Pemeriksa</th>
+                <th>Debit Inlet</th>
+                <th class="bg-primary text-white">Debit Outlet IPAL</th>
+              </tr>
+            </thead>
+            <tbody id="tableDebitSV30">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="copyright">
+    &copy; Copyright by Bg
+  </div>
+
+  <script>
+    // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyOdcrkuzda7vdAGIusyxDK3H_HlDF_DzyjzHN98yQCS6CsOWExes9tLGPzgl6XzEMHZA/exec'; 
+
+    // --- KODE LOGIKA LOGIN, REGISTER, & LUPA PASSWORD ---
+    function togglePassword(inputId, iconElement) {
+      const input = document.getElementById(inputId);
+      if (input.type === "password") {
+        input.type = "text";
+        iconElement.classList.remove('fa-eye');
+        iconElement.classList.add('fa-eye-slash');
+      } else {
+        input.type = "password";
+        iconElement.classList.remove('fa-eye-slash');
+        iconElement.classList.add('fa-eye');
+      }
+    }
+
+    function switchForgotUI(showForgot) {
+      if (showForgot) {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('forgotSection').style.display = 'flex';
+        document.getElementById('forgotMsg').style.display = 'none';
+        document.getElementById('forgotEmail').value = '';
+      } else {
+        document.getElementById('forgotSection').style.display = 'none';
+        document.getElementById('loginSection').style.display = 'flex';
+      }
+    }
+
+    function cekStatusLogin() {
+      const hasLoggedIn = sessionStorage.getItem('ipal_logged_in');
+      if(hasLoggedIn === 'true') {
+        document.getElementById('authOverlay').style.display = 'none';
+        document.getElementById('profileMenu').style.display = 'block'; 
+        checkLicense();
+        updateStatusUI();
+        showGreetingSection(); 
+      }
+    }
+
+    function prosesLogin() {
+      const u = document.getElementById('loginUsername').value;
+      const p = document.getElementById('loginPassword').value;
+      const errorMsg = document.getElementById('loginError');
+      const btn = document.getElementById('btnLogin');
+
+      if (!u || !p) {
+        errorMsg.innerText = "Isi username dan password!";
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      btn.innerText = "MEMPROSES...";
+      btn.disabled = true;
+
+      const formData = new URLSearchParams();
+      formData.append('action', 'login');
+      formData.append('username', u);
+      formData.append('password', p);
+
+      fetch(scriptURL, { method: 'POST', body: formData })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          sessionStorage.setItem('ipal_logged_in', 'true');
+          sessionStorage.setItem('ipal_username', u); 
+          document.getElementById('authOverlay').style.display = 'none';
+          document.getElementById('profileMenu').style.display = 'block'; 
+          checkLicense();
+          updateStatusUI();
+          showGreetingSection(); 
+        } else {
+          errorMsg.innerText = data.message;
+          errorMsg.style.display = 'block';
+        }
+      })
+      .catch(err => {
+        errorMsg.innerText = "Gagal terhubung ke Database!";
+        errorMsg.style.display = 'block';
+      })
+      .finally(() => {
+        btn.innerText = "LOGIN";
+        btn.disabled = false;
+      });
+    }
+
+    function prosesLogout() {
+      sessionStorage.removeItem('ipal_logged_in'); 
+      window.location.reload(); 
+    }
+
+    function prosesRegister() {
+      const n = document.getElementById('regNama').value;
+      const e = document.getElementById('regEmail').value; 
+      const u = document.getElementById('regUsername').value;
+      const p = document.getElementById('regPassword').value;
+      const msg = document.getElementById('regMsg');
+      const btn = document.getElementById('btnRegister');
+
+      if (!n || !e || !u || !p) {
+        msg.innerText = "Isi semua data pendaftaran!";
+        msg.style.color = "#dc2626";
+        msg.style.display = 'block';
+        return;
+      }
+
+      btn.innerText = "MEMPROSES...";
+      btn.disabled = true;
+
+      const formData = new URLSearchParams();
+      formData.append('action', 'register');
+      formData.append('nama', n);
+      formData.append('email', e); 
+      formData.append('username', u);
+      formData.append('password', p);
+
+      fetch(scriptURL, { method: 'POST', body: formData })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          msg.innerText = "Berhasil! Silakan Login di kolom Hijau.";
+          msg.style.color = "#10b981";
+          msg.style.display = 'block';
+          document.getElementById('regNama').value = "";
+          document.getElementById('regEmail').value = "";
+          document.getElementById('regUsername').value = "";
+          document.getElementById('regPassword').value = "";
+        } else {
+          msg.innerText = data.message;
+          msg.style.color = "#dc2626";
+          msg.style.display = 'block';
+        }
+      })
+      .catch(err => {
+        msg.innerText = "Gagal terhubung ke Database!";
+        msg.style.color = "#dc2626";
+        msg.style.display = 'block';
+      })
+      .finally(() => {
+        btn.innerText = "SIGN UP";
+        btn.disabled = false;
+      });
+    }
+
+    function prosesForgotPassword() {
+      const email = document.getElementById('forgotEmail').value;
+      const msg = document.getElementById('forgotMsg');
+      const btn = document.getElementById('btnForgot');
+
+      if (!email) {
+        msg.innerText = "Harap isi alamat email terdaftar!";
+        msg.style.color = "#fee2e2";
+        msg.style.display = 'block';
+        return;
+      }
+
+      btn.innerText = "MENGIRIM...";
+      btn.disabled = true;
+      msg.style.display = 'none';
+
+      const formData = new URLSearchParams();
+      formData.append('action', 'forgot_password');
+      formData.append('email', email);
+
+      fetch(scriptURL, { method: 'POST', body: formData })
+      .then(res => res.json())
+      .then(data => {
+        msg.style.display = 'block';
+        if (data.status === 'success') {
+          msg.innerText = data.message;
+          msg.style.color = "#fff"; 
+        } else {
+          msg.innerText = data.message;
+          msg.style.color = "#fee2e2"; 
+        }
+      })
+      .catch(err => {
+        msg.innerText = "Gagal menghubungi server.";
+        msg.style.color = "#fee2e2";
+        msg.style.display = 'block';
+      })
+      .finally(() => {
+        btn.innerText = "KIRIM EMAIL";
+        btn.disabled = false;
+      });
+    }
+
+    // --- FUNGSI JAM, SAPAAN, & CUACA ---
+    function showGreetingSection() {
+      document.getElementById('greetingContainer').style.display = 'flex';
+      updateClockAndGreeting();
+      setInterval(updateClockAndGreeting, 1000); 
+      fetchWeather(); 
+    }
+
+    function updateClockAndGreeting() {
+      const username = sessionStorage.getItem('ipal_username') || 'Admin';
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+
+      let greeting = 'Selamat Malam';
+      if (hours >= 4 && hours < 11) greeting = 'Selamat Pagi';
+      else if (hours >= 11 && hours < 15) greeting = 'Selamat Siang';
+      else if (hours >= 15 && hours < 18) greeting = 'Selamat Sore';
+
+      document.getElementById('greetingMessage').innerHTML = `${greeting}, <strong>${username}</strong>!`;
+      document.getElementById('clockMessage').innerText = `${hours}:${minutes}:${seconds} WIB`;
+    }
+
+    function fetchWeather() {
+      fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.5944&longitude=106.7892&current_weather=true')
+      .then(res => res.json())
+      .then(data => {
+          const temp = data.current_weather.temperature;
+          const code = data.current_weather.weathercode;
+          let iconClass = 'fas fa-cloud-sun text-info';
+          let desc = 'Cerah Berawan';
+          
+          if(code === 0) { iconClass = 'fas fa-sun text-warning'; desc = 'Cerah'; }
+          else if(code === 1 || code === 2 || code === 3) { iconClass = 'fas fa-cloud-sun text-info'; desc = 'Berawan'; }
+          else if(code >= 60 && code <= 69) { iconClass = 'fas fa-cloud-rain text-primary'; desc = 'Hujan'; }
+          else if(code >= 95) { iconClass = 'fas fa-bolt text-danger'; desc = 'Badai Petir'; }
+
+          const iconEl = document.getElementById('weatherIcon');
+          iconEl.className = iconClass + " me-1";
+          document.getElementById('weatherMessage').innerText = `${desc} (${temp}°C)`;
+      })
+      .catch(err => {
+          document.getElementById('weatherIcon').className = "fas fa-cloud text-secondary me-1";
+          document.getElementById('weatherMessage').innerText = `Cuaca Offline`;
+      });
+    }
+
+    // --- PENGATURAN PROFIL & SIMPAN ---
+    function openSettingsModal() {
+      document.getElementById('settingsModal').style.display = 'flex';
+      document.getElementById('setUsername').value = sessionStorage.getItem('ipal_username') || '';
+    }
+    
+    function closeSettingsModal() {
+      document.getElementById('settingsModal').style.display = 'none';
+    }
+
+    // FUNGSI NOTIFIKASI POPUP CUSTOM DENGAN VARIASI 'WARNING'
+    function showNotifModal(type, title, message) {
+        const modal = document.getElementById('notifModal');
+        const icon = document.getElementById('notifIcon');
+        const titleEl = document.getElementById('notifTitle');
+        const msgEl = document.getElementById('notifMessage');
+
+        titleEl.innerText = title;
+        msgEl.innerText = message;
+
+        if (type === 'success') {
+            icon.className = 'fas fa-check-circle license-icon';
+            icon.style.color = '#10b981';
+            icon.style.background = 'rgba(16, 185, 129, 0.1)';
+            titleEl.style.color = '#10b981';
+        } else if (type === 'warning') {
+            icon.className = 'fas fa-exclamation-triangle license-icon';
+            icon.style.color = '#f59e0b';
+            icon.style.background = 'rgba(245, 158, 11, 0.1)';
+            titleEl.style.color = '#f59e0b';
+        } else {
+            icon.className = 'fas fa-times-circle license-icon';
+            icon.style.color = '#ef4444';
+            icon.style.background = 'rgba(239, 68, 68, 0.1)';
+            titleEl.style.color = '#ef4444';
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    function closeNotifModal() {
+        document.getElementById('notifModal').style.display = 'none';
+    }
+
+    function simpanPengaturan() {
+      const n = document.getElementById('setNama').value;
+      const e = document.getElementById('setEmail').value;
+      const u = document.getElementById('setUsername').value;
+      const p = document.getElementById('setPassword').value;
+      
+      const oldU = sessionStorage.getItem('ipal_username'); 
+
+      const btn = document.querySelector('#settingsModal button.btn-excel');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
+      btn.disabled = true;
+
+      const formData = new URLSearchParams();
+      formData.append('action', 'update_profile');
+      formData.append('old_username', oldU);
+      if(n) formData.append('nama', n);
+      if(e) formData.append('email', e);
+      if(u) formData.append('new_username', u);
+      if(p) formData.append('password', p);
+
+      fetch(scriptURL, { method: 'POST', body: formData })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          if(u) sessionStorage.setItem('ipal_username', u); 
+          
+          document.getElementById('setNama').value = '';
+          document.getElementById('setEmail').value = '';
+          document.getElementById('setPassword').value = '';
+          
+          closeSettingsModal();
+          updateClockAndGreeting(); 
+          
+          showNotifModal('success', 'Berhasil!', data.message);
+        } else {
+          showNotifModal('error', 'Gagal!', data.message);
+        }
+      })
+      .catch(err => {
+        showNotifModal('error', 'Koneksi Terputus!', 'Gagal terhubung ke Database. Pastikan internet Anda stabil.');
+      })
+      .finally(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", cekStatusLogin);
+    // ===================================================================================
+
+    let globalData = []; 
+    let currentFilteredData = []; 
+    let chartPH, chartSuhu, chartTDS; 
+    const namaBulanList = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+    fetch(scriptURL)
+      .then(response => response.json())
+      .then(data => {
+        globalData = data;
+        const mainContentWrapper = document.getElementById('mainContentWrapper');
+        const loading = document.getElementById('loading');
+        
+        const monthFilter = document.getElementById('monthFilter');
+        const yearFilter = document.getElementById('yearFilter');
+
+        function applyFilters() {
+          const selectedMonth = monthFilter.value;
+          const selectedYear = yearFilter.value;
+
+          if (selectedMonth === 'all' && selectedYear === 'all') {
+             renderDashboard(globalData, 'all', 'all');
+          } else {
+             const header = globalData[0];
+             const filteredRows = globalData.slice(1).filter(row => {
+               let dateObj = new Date(row[2]);
+               if (isNaN(dateObj.getTime())) dateObj = new Date(row[0]);
+               if (isNaN(dateObj.getTime())) return false;
+
+               const rowMonth = namaBulanList[dateObj.getMonth()];
+               const rowYear = dateObj.getFullYear().toString();
+
+               const matchMonth = (selectedMonth === 'all') || (rowMonth === selectedMonth);
+               const matchYear = (selectedYear === 'all') || (rowYear === selectedYear);
+
+               return matchMonth && matchYear;
+             });
+             renderDashboard([header, ...filteredRows], selectedMonth, selectedYear);
+          }
+        }
+
+        monthFilter.addEventListener('change', applyFilters);
+        yearFilter.addEventListener('change', applyFilters);
+
+        loading.classList.add('d-none');
+        mainContentWrapper.classList.remove('d-none');
+        renderDashboard(globalData, 'all', 'all');
+      })
+      .catch(error => {
+        console.error('Error memuat data:', error);
+        document.getElementById('loading').innerHTML = `
+          <div class="text-danger mt-4 text-center w-100">
+            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+            <h5>Gagal memuat data.</h5>
+            <p>Pastikan URL Apps Script sudah benar dan koneksi internet stabil.</p>
+          </div>
+        `;
+      });
+
+    function renderDashboard(data, selectedMonth, selectedYear) {
+      currentFilteredData = data; 
+      const totalRows = data.length > 1 ? data.length - 1 : 0;
+      
+      const statusPH = document.getElementById('statusPH');
+      const statusSuhu = document.getElementById('statusSuhu');
+      const statusTDS = document.getElementById('statusTDS');
+      const tbodyDebit = document.getElementById('tableDebitSV30');
+      
+      tbodyDebit.innerHTML = '';
+      statusPH.innerHTML = '';
+      statusSuhu.innerHTML = '';
+      statusTDS.innerHTML = '';
+
+      if (chartPH) chartPH.destroy();
+      if (chartSuhu) chartSuhu.destroy();
+      if (chartTDS) chartTDS.destroy();
+
+      if(totalRows > 0) {
+        const lastPH = parseFloat(data[data.length - 1][3]);
+        const lastSuhu = parseFloat(data[data.length - 1][4]);
+        const lastTDS = parseFloat(data[data.length - 1][5]);
+
+        if (lastPH >= 6 && lastPH <= 9) {
+          statusPH.innerHTML = `<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Data Terakhir Memenuhi (${lastPH})</span>`;
+        } else {
+          statusPH.innerHTML = `<span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>Data Terakhir Tdk Memenuhi (${lastPH})</span>`;
+        }
+
+        if (lastSuhu < 38) {
+          statusSuhu.innerHTML = `<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Data Terakhir Memenuhi (${lastSuhu}°C)</span>`;
+        } else {
+          statusSuhu.innerHTML = `<span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>Data Terakhir Tdk Memenuhi (${lastSuhu}°C)</span>`;
+        }
+
+        if (lastTDS < 2000) {
+          statusTDS.innerHTML = `<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Data Terakhir Memenuhi (${lastTDS} mg/L)</span>`;
+        } else {
+          statusTDS.innerHTML = `<span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>Data Terakhir Tdk Memenuhi (${lastTDS} mg/L)</span>`;
+        }
+
+        let labelsX = [];
+        let dataPH = [];
+        let dataSuhu = [];
+        let dataTDS = [];
+
+        if (selectedMonth !== 'all' && selectedYear !== 'all') {
+          const mIndex = namaBulanList.indexOf(selectedMonth);
+          const yInt = parseInt(selectedYear);
+          const daysInMonth = new Date(yInt, mIndex + 1, 0).getDate(); 
+
+          for (let d = 1; d <= daysInMonth; d++) {
+            labelsX.push(d.toString()); 
+            
+            const dayRows = data.slice(1).filter(row => {
+              let dObj = new Date(row[2]);
+              if (isNaN(dObj.getTime())) dObj = new Date(row[0]);
+              return dObj.getDate() === d;
+            });
+
+            const phVals = dayRows.map(r => parseFloat(r[3])).filter(n => !isNaN(n));
+            const suhuVals = dayRows.map(r => parseFloat(r[4])).filter(n => !isNaN(n));
+            const tdsVals = dayRows.map(r => parseFloat(r[5])).filter(n => !isNaN(n));
+
+            dataPH.push(phVals.length ? (phVals.reduce((a,b)=>a+b,0)/phVals.length).toFixed(2) : null);
+            dataSuhu.push(suhuVals.length ? (suhuVals.reduce((a,b)=>a+b,0)/suhuVals.length).toFixed(2) : null);
+            dataTDS.push(tdsVals.length ? (tdsVals.reduce((a,b)=>a+b,0)/tdsVals.length).toFixed(2) : null);
+          }
+        } 
+        else {
+          const dailyData = {};
+          for (let i = 1; i < data.length; i++) {
+            let dateObj = new Date(data[i][2]);
+            if (isNaN(dateObj.getTime())) dateObj = new Date(data[i][0]); 
+            
+            const dayLabel = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            
+            if (!dailyData[dayLabel]) dailyData[dayLabel] = { ph: [], suhu: [], tds: [], dateObj: dateObj };
+            
+            dailyData[dayLabel].ph.push(parseFloat(data[i][3]));
+            dailyData[dayLabel].suhu.push(parseFloat(data[i][4]));
+            dailyData[dayLabel].tds.push(parseFloat(data[i][5]));
+          }
+
+          const sortedLabels = Object.keys(dailyData).sort((a, b) => dailyData[a].dateObj - dailyData[b].dateObj);
+
+          sortedLabels.forEach(label => {
+            labelsX.push(label);
+            const phArr = dailyData[label].ph.filter(n => !isNaN(n));
+            const suhuArr = dailyData[label].suhu.filter(n => !isNaN(n));
+            const tdsArr = dailyData[label].tds.filter(n => !isNaN(n));
+
+            dataPH.push(phArr.length ? (phArr.reduce((a, b) => a + b, 0) / phArr.length).toFixed(2) : null);
+            dataSuhu.push(suhuArr.length ? (suhuArr.reduce((a, b) => a + b, 0) / suhuArr.length).toFixed(2) : null);
+            dataTDS.push(tdsArr.length ? (tdsArr.reduce((a, b) => a + b, 0) / tdsArr.length).toFixed(2) : null);
+          });
+        }
+
+        Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+
+        chartPH = new Chart(document.getElementById('chartPH'), {
+          type: 'line',
+          data: {
+            labels: labelsX,
+            datasets: [{ label: 'Rata-rata pH Harian', data: dataPH, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#3b82f6', fill: true, tension: 0.4, spanGaps: true }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        chartSuhu = new Chart(document.getElementById('chartSuhu'), {
+          type: 'line',
+          data: {
+            labels: labelsX,
+            datasets: [{ label: 'Rata-rata Suhu Harian (°C)', data: dataSuhu, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#ef4444', fill: true, tension: 0.4, spanGaps: true }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        chartTDS = new Chart(document.getElementById('chartTDS'), {
+          type: 'line',
+          data: {
+            labels: labelsX,
+            datasets: [{ label: 'Rata-rata TDS Harian (mg/L)', data: dataTDS, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#10b981', fill: true, tension: 0.4, spanGaps: true }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const debitIndexes = [6, 10]; 
+
+        for (let i = 1; i < data.length; i++) {
+          let row = document.createElement('tr');
+          
+          const kolomPilihan = [2, 1, 6, 10];
+          
+          kolomPilihan.forEach(idx => {
+            let cell = document.createElement('td');
+            let cellData = data[i][idx] !== undefined ? data[i][idx] : "";
+            
+            if (idx === 1) { 
+              cell.innerHTML = `<strong>${cellData}</strong>`;
+            } else if (debitIndexes.includes(idx)) {
+              if (cellData === "" || cellData === null) {
+                cell.textContent = "-";
+              } else {
+                const originalIndex = globalData.indexOf(data[i]);
+                if (originalIndex > 1) {
+                  const prevRaw = globalData[originalIndex - 1][idx];
+                  const prevValue = (prevRaw === "" || prevRaw === null || prevRaw === undefined) ? 0 : parseFloat(prevRaw);
+                  const currentValue = parseFloat(cellData);
+                  let selisih = currentValue - prevValue;
+                  if (selisih < 0) selisih = currentValue; 
+                  cell.textContent = Number.isInteger(selisih) ? selisih : selisih.toFixed(2);
+                } else {
+                  cell.textContent = cellData;
+                }
+              }
+            } else {
+              cell.textContent = (cellData === "" || cellData === null) ? "-" : cellData;
+            }
+            row.appendChild(cell);
+          });
+          tbodyDebit.appendChild(row);
+        }
+      }
+    }
+
+    function downloadChart(canvasId, baseFilename) {
+      const canvas = document.getElementById(canvasId);
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const ctx = tempCanvas.getContext('2d');
+      ctx.fillStyle = '#ffffff'; 
+      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      ctx.drawImage(canvas, 0, 0);
+
+      const month = document.getElementById('monthFilter').value;
+      const year = document.getElementById('yearFilter').value;
+      
+      const link = document.createElement('a');
+      link.href = tempCanvas.toDataURL('image/png');
+      link.download = `${baseFilename}_${month}_${year}.png`;
+      link.click();
+    }
+
+    function generateReportMatrix() {
+      const monthSelect = document.getElementById('monthFilter').value;
+      const yearSelect = document.getElementById('yearFilter').value;
+
+      if (monthSelect === 'all' || yearSelect === 'all') {
+        showNotifModal('warning', 'Perhatian!', 'Harap pilih Bulan dan Tahun yang spesifik pada filter sebelum mendownload format laporan ini.');
+        return null;
+      }
+
+      if (!currentFilteredData || currentFilteredData.length <= 1) {
+        showNotifModal('warning', 'Data Kosong!', 'Tidak ada data untuk didownload pada bulan tersebut.');
+        return null;
+      }
+
+      const mIndex = namaBulanList.indexOf(monthSelect);
+      const yInt = parseInt(yearSelect);
+      const daysInMonth = new Date(yInt, mIndex + 1, 0).getDate();
+
+      let matrix = [];
+
+      let headerRow = ["No", "Parameter Pemeriksaan"];
+      for (let d = 1; d <= daysInMonth; d++) {
+        headerRow.push(d.toString());
+      }
+      headerRow.push("Rata-rata"); 
+      matrix.push(headerRow);
+
+      const rowTemplates = [
+        { type: 'header', no: 'A', param: 'Parameter Fisik' },
+        { type: 'empty', no: '1', param: 'Total Suspended Solid (TSS)' },
+        { type: 'data', no: '2', param: 'Suhu', dataIdx: 4, calc: false },
+        { type: 'data', no: '3', param: 'pH', dataIdx: 3, calc: false },
+        { type: 'data', no: '4', param: 'Debit outlet', dataIdx: 10, calc: true },
+        { type: 'data', no: '5', param: 'Debit inlet', dataIdx: 6, calc: true },
+        { type: 'data', no: '', param: 'Paraf Petugas', dataIdx: 1, calc: false },
+      ];
+
+      let dataByDay = {};
+      for (let i = 1; i < currentFilteredData.length; i++) {
+         let row = currentFilteredData[i];
+         let dateObj = new Date(row[2]);
+         if (isNaN(dateObj.getTime())) dateObj = new Date(row[0]);
+         if (!isNaN(dateObj.getTime())) {
+            dataByDay[dateObj.getDate()] = {
+              row: row,
+              originalIndex: globalData.indexOf(row)
+            };
+         }
+      }
+
+      rowTemplates.forEach(template => {
+        let rowArr = [template.no, template.param];
+        let sum = 0;
+        let count = 0;
+        
+        for (let d = 1; d <= daysInMonth; d++) {
+           if (template.type === 'header' || template.type === 'empty') {
+             rowArr.push("");
+           } else if (template.type === 'data') {
+             if (dataByDay[d]) {
+                const rowData = dataByDay[d].row;
+                const origIdx = dataByDay[d].originalIndex;
+                let val = rowData[template.dataIdx];
+                let cellVal = "";
+
+                if (template.calc) { 
+                   if (val === "" || val === null || val === undefined) {
+                     cellVal = "";
+                   } else {
+                     if (origIdx > 1) {
+                        const prevRaw = globalData[origIdx - 1][template.dataIdx];
+                        const prevValue = (prevRaw === "" || prevRaw === null || prevRaw === undefined) ? 0 : parseFloat(prevRaw);
+                        const currentValue = parseFloat(val);
+                        let selisih = currentValue - prevValue;
+                        if (selisih < 0) selisih = currentValue;
+                        cellVal = Number.isInteger(selisih) ? selisih : parseFloat(selisih.toFixed(2));
+                     } else {
+                        cellVal = parseFloat(val);
+                     }
+                   }
+                } else {
+                   cellVal = (val !== undefined && val !== null && val !== "") ? val : "";
+                   if (template.param !== 'Paraf Petugas' && cellVal !== "" && !isNaN(parseFloat(cellVal))) {
+                       cellVal = parseFloat(cellVal);
+                   }
+                }
+                
+                rowArr.push(cellVal);
+
+                if (template.param !== 'Paraf Petugas' && typeof cellVal === 'number' && !isNaN(cellVal)) {
+                    sum += cellVal;
+                    count++;
+                }
+
+             } else {
+                rowArr.push(""); 
+             }
+           }
+        }
+
+        if (template.type === 'data' && template.param !== 'Paraf Petugas') {
+            if (count > 0) {
+                let avg = sum / count;
+                rowArr.push(parseFloat(avg.toFixed(2))); 
+            } else {
+                rowArr.push(""); 
+            }
+        } else {
+            rowArr.push(""); 
+        }
+
+        matrix.push(rowArr);
+      });
+
+      return { matrix, daysInMonth, monthSelect, yearSelect };
+    }
+
+    function downloadExcel() {
+      const reportData = generateReportMatrix();
+      if (!reportData) return;
+
+      const { matrix, daysInMonth, monthSelect, yearSelect } = reportData;
+
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.aoa_to_sheet(matrix);
+
+      let wscols = [
+        {wch: 4},   
+        {wch: 30},  
+      ];
+      for(let i=0; i<daysInMonth; i++) wscols.push({wch: 6}); 
+      wscols.push({wch: 10}); 
+      worksheet['!cols'] = wscols;
+
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan_Swapantau");
+      XLSX.writeFile(workbook, `Laporan_Swapantau_${monthSelect}_${yearSelect}.xlsx`);
+    }
+
+    function downloadPDF() {
+      const reportData = generateReportMatrix();
+      if (!reportData) return;
+
+      const { matrix, monthSelect, yearSelect } = reportData;
+      const { jsPDF } = window.jspdf;
+
+      const doc = new jsPDF({ orientation: 'landscape', format: 'a4' });
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("PENGUKURAN SWAPANTAU OUTLET LIMBAH CAIR", doc.internal.pageSize.getWidth()/2, 15, {align: 'center'});
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Bulan   :  ${monthSelect} ${yearSelect}`, 15, 25);
+
+      const head = [matrix[0]];
+      const body = matrix.slice(1);
+
+      doc.autoTable({
+        startY: 30,
+        head: head,
+        body: body,
+        theme: 'grid',
+        styles: {
+          fontSize: 6,
+          cellPadding: 1,
+          valign: 'middle',
+          halign: 'center',
+          lineColor: [0, 0, 0],
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: [220, 220, 220],
+          textColor: 20,
+          fontStyle: 'bold',
+        },
+        columnStyles: {
+          0: { halign: 'center', cellWidth: 8 }, 
+          1: { halign: 'left', cellWidth: 40 },  
+        },
+        didParseCell: function(data) {
+            if (data.section === 'body') {
+                const rowData = body[data.row.index];
+                if (rowData[0] === 'A' || rowData[0] === 'B' || rowData[0] === 'C') {
+                    data.cell.styles.fillColor = [240, 240, 240];
+                    data.cell.styles.fontStyle = 'bold';
+                }
+            }
+        },
+        margin: { top: 30, left: 10, right: 10 }
+      });
+
+      let finalY = doc.lastAutoTable.finalY || 30;
+
+      if (finalY > doc.internal.pageSize.getHeight() - 40) {
+        doc.addPage();
+        finalY = 20;
+      }
+
+      doc.setFontSize(9);
+      doc.text("Catatan :", 15, finalY + 10);
+
+      const ttdX = doc.internal.pageSize.getWidth() - 50;
+      doc.text("Mengetahui", ttdX, finalY + 10, {align: 'center'});
+      doc.text("Kepala Instalasi Kesling dan K3RS", ttdX, finalY + 14, {align: 'center'});
+      
+      doc.text("__________________", ttdX, finalY + 35, {align: 'center'});
+
+      doc.save(`Laporan_Swapantau_${monthSelect}_${yearSelect}.pdf`);
+    }
+
+    const TRIAL_DAYS = 30; 
+
+    function updateStatusUI() {
+      const isUnlocked = localStorage.getItem('ipal_unlocked') === 'true';
+      const badgeContainer = document.getElementById('navStatusBadge');
+      
+      if (isUnlocked) {
+        badgeContainer.innerHTML = `
+          <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.85rem; padding: 8px 15px;">
+            <i class="fas fa-gem me-1"></i> Premium (Unlimited)
+          </span>
+        `;
+      } else {
+        badgeContainer.innerHTML = `
+          <span class="badge bg-secondary" style="font-size: 0.85rem; padding: 8px 15px; background: rgba(71, 85, 105, 0.8)!important;">
+            <i class="fas fa-clock me-1"></i> Free Trial
+          </span>
+          <button class="btn btn-sm text-dark fw-bold rounded-pill px-3 shadow-sm" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border: none;" onclick="openUpgradeModal()">
+            <i class="fas fa-star me-1"></i> Upgrade
+          </button>
+        `;
+      }
+    }
+
+    function checkLicense() {
+      const isUnlocked = localStorage.getItem('ipal_unlocked');
+      if (isUnlocked === 'true') return; 
+
+      let installDate = localStorage.getItem('ipal_install_date');
+      if (!installDate) {
+        installDate = new Date().getTime();
+        localStorage.setItem('ipal_install_date', installDate);
+      }
+
+      const now = new Date().getTime();
+      const diffTime = Math.abs(now - parseInt(installDate));
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays > TRIAL_DAYS) {
+        document.getElementById('licenseModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden'; 
+      }
+    }
+
+    function verifyToken() {
+      const inputToken = document.getElementById('tokenInput').value.trim(); 
+      if(!inputToken) {
+        showNotifModal('warning', 'Perhatian!', 'Silakan masukkan token terlebih dahulu!');
+        return;
+      }
+
+      const btn = document.getElementById('btnVerify');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Memverifikasi...';
+      btn.disabled = true;
+
+      const formData = new URLSearchParams();
+      formData.append('action', 'verify_token');
+      formData.append('token', inputToken);
+
+      fetch(scriptURL, { method: 'POST', body: formData })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          localStorage.setItem('ipal_unlocked', 'true');
+          showNotifModal('success', 'Aktivasi Berhasil!', 'Aplikasi sekarang Unlimited selamanya.');
+          document.getElementById('licenseModal').style.display = 'none';
+          document.body.style.overflow = 'auto'; 
+          updateStatusUI(); 
+        } else {
+          showNotifModal('error', 'Gagal!', 'Token salah atau tidak valid! Silakan hubungi developer.');
+        }
+      })
+      .catch(err => {
+        showNotifModal('error', 'Koneksi Terputus!', 'Gagal memverifikasi token ke server. Pastikan internet stabil.');
+      })
+      .finally(() => {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+      });
+    }
+
+    function verifyTokenFromPayment() {
+      const inputToken = document.getElementById('tokenInputPayment').value.trim(); 
+      if(!inputToken) {
+        showNotifModal('warning', 'Perhatian!', 'Silakan masukkan token terlebih dahulu!');
+        return;
+      }
+
+      const btn = document.getElementById('btnVerifyPayment');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Memverifikasi...';
+      btn.disabled = true;
+
+      const formData = new URLSearchParams();
+      formData.append('action', 'verify_token');
+      formData.append('token', inputToken);
+
+      fetch(scriptURL, { method: 'POST', body: formData })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          localStorage.setItem('ipal_unlocked', 'true');
+          showNotifModal('success', 'Aktivasi Berhasil!', 'Aplikasi sekarang Unlimited selamanya.');
+          document.getElementById('licenseModal').style.display = 'none';
+          document.getElementById('paymentModal').style.display = 'none';
+          document.body.style.overflow = 'auto'; 
+          updateStatusUI(); 
+        } else {
+          showNotifModal('error', 'Gagal!', 'Token salah atau tidak valid! Silakan hubungi developer.');
+        }
+      })
+      .catch(err => {
+        showNotifModal('error', 'Koneksi Terputus!', 'Gagal memverifikasi token ke server. Pastikan internet stabil.');
+      })
+      .finally(() => {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+      });
+    }
+
+    function openUpgradeModal() {
+      document.getElementById('upgradeModal').style.display = 'flex';
+    }
+    
+    function closeUpgradeModal() {
+      document.getElementById('upgradeModal').style.display = 'none';
+    }
+
+    function openPaymentModal() {
+      closeUpgradeModal();
+      document.getElementById('paymentModal').style.display = 'flex';
+    }
+
+    function closePaymentModal() {
+      document.getElementById('paymentModal').style.display = 'none';
+    }
+
+    function sendProofWhatsApp() {
+      const phone = "6281314129635";
+      const message = "Halo Admin, saya ingin konfirmasi pembayaran Upgrade Akses Unlimited untuk Dashboard Swapantau IPAL. Berikut adalah lampiran bukti transfer saya:";
+      const waUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+      window.open(waUrl, "_blank");
+    }
+
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
