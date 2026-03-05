@@ -122,6 +122,91 @@
       font-size: 0.95rem;
       letter-spacing: 0.5px;
     }
+
+    /* CUSTOM POP-UP ALERT CANTIK */
+    #alert {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+    .popup-box {
+      background: #ffffff;
+      padding: 40px 30px;
+      border-radius: 24px;
+      text-align: center;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+      max-width: 350px;
+      width: 90%;
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .popup-box i {
+      font-size: 4rem;
+      color: #10b981;
+      margin-bottom: 20px;
+      background: rgba(16, 185, 129, 0.1);
+      width: 90px;
+      height: 90px;
+      line-height: 90px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .popup-box h4 {
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+    .popup-box p {
+      color: #64748b;
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* REVISI: PENYESUAIAN LAYAR HP (MOBILE RESPONSIVE) */
+    @media (max-width: 768px) {
+      .form-container {
+        margin: 20px auto;
+      }
+      .card-header {
+        padding: 30px 20px;
+      }
+      .card-header h3 {
+        font-size: 1.6rem; /* Ukuran judul diperkecil untuk HP */
+      }
+      .card-body {
+        padding: 25px 20px !important;
+      }
+      .section-title {
+        font-size: 1.05rem;
+        margin-top: 15px;
+        margin-bottom: 15px;
+      }
+      .section-title i {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+      }
+      .form-floating > label {
+        font-size: 0.85rem;
+      }
+      .form-control {
+        font-size: 0.95rem;
+        padding: 0.8rem 1rem;
+        height: calc(3.4rem + 2px); /* Kotak input sedikit dipertipis untuk HP */
+      }
+      .btn-submit {
+        font-size: 1rem;
+        padding: 15px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -135,9 +220,12 @@
       
       <div class="card-body p-4 p-md-5">
         
-        <div id="alert" class="alert alert-success d-none align-items-center" role="alert" style="border-radius: 14px; font-weight: 600;">
-          <i class="fas fa-check-circle me-2 fs-4"></i>
-          <div>Data berhasil dikirim ke sistem!</div>
+        <div id="alert" class="d-none" role="alert">
+          <div class="popup-box">
+            <i class="fas fa-check-circle"></i>
+            <h4>Berhasil!</h4>
+            <p>Data laporan berhasil dikirim ke sistem.</p>
+          </div>
         </div>
         
         <form id="formLimbah" name="form-limbah">
@@ -211,7 +299,7 @@
     </div>
     
     <div class="copyright">
-      &copy; Copyright by Bg
+      &copy; Copyright by Bang Gele
     </div>
 
   </div>
